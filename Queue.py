@@ -15,9 +15,9 @@ def get_html(url):
               'password': password
               }
     with requests.Session() as sesh:
-        r = sesh.get(url, headers=headers)
+        r = sesh.get(url, headers=headers) #Login URL
         r = sesh.post(url, data=values)
-        r = sesh.get("http://comingProjectsListView")
+        r = sesh.get("http://comingProjectsListView") # Data URL
         return r.text
 
 def bs4Soup(html):
