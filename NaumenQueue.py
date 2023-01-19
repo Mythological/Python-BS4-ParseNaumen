@@ -6,8 +6,8 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import tkinter as tk
-login = 'LOGIN'
-password = 'PASSWORD'
+login = 'login'
+password = 'password'
 
 def requests_retry_session(
     retries=30,
@@ -41,7 +41,7 @@ def get_html(url):
         #response = requests_retry_session(session=s).get('https://www.peterbe.com')
         r = requests_retry_session(session=sesh).get(url, headers=headers)
         r = requests_retry_session(session=sesh).post(url, data=values)
-        r = requests_retry_session(session=sesh).get("http://URL/published?uuid=fckdshcorebo00000000000m89vfnld7v1qso0&activeComponent=IncomingProjectsListView")
+        r = requests_retry_session(session=sesh).get("http://172.11.1.11:8080/published?uuid=fctsListView")
         return r.text
 
 def bs4Soup(html):
@@ -50,7 +50,7 @@ def bs4Soup(html):
     list1 = []
     dicct = {}
     for i in html_list:
-        list = re.findall(r'[А-я]+|[0-9]+', i.text)
+        list = re.findall(r'[А-яA-z]+|[0-9]+', i.text)
         txt = " ".join(list)
         if "СПБ" in txt or txt.isdigit() == True:
             list1.append(txt)
@@ -74,11 +74,12 @@ def bs4Soup(html):
         print(key.replace("СПБ", "").replace('МЕД', '').replace("Очередь", '').replace('проекта', '')\
                   .replace('1', '').replace('2', '').replace('3', '').strip() + "  -  " + str(dicct[key]))
         string += key.replace("СПБ", "").replace('МЕД', '').replace("медицинская", "мед.").replace("Консультация", "Конс.").replace("приложению", "прил.").replace("Очередь", '').replace('проекта', '')\
-                  .replace('1', '').replace('2', '').replace('3', '').strip() + "  -  " + str(dicct[key]) + "\n"
-    return  "\n" + string + "\n" + "Всего   -   " + str(amount)
+                  .replace('1', '').replace("Общая очередь Xup", "Xoup").replace('2', '').replace('3', '').strip() + "  -  " + str(dicct[key]) + "\n"
+        #string += key.replace("Общая очередь Xoup", 'Xoup')
+    return string + "\n" + "Всего   -   " + str(amount)
 
 def main():
-    url = "http://URL/"
+    url = "http://172.11.1.11:8080/"
     bs4Soup(get_html(url))
 
 def Draw():
@@ -89,26 +90,30 @@ def Draw():
     text.pack(fill = 'both', expand=True)
 
 def Refresher():
-    url = "http://URL/"
+    url = "http://172.11.1.11:8080/"
     global text
     try:
-        if int(bs4Soup(get_html(url))[-4:]) > 35:
+        if int(bs4Soup(get_html(url))[-4:]) > 50:
             bg = '#eb6788'
-        elif int(bs4Soup(get_html(url))[-4:]) > 25:
+        elif int(bs4Soup(get_html(url))[-4:]) > 70:
             bg = '#e3869d'
         else:
+            #bg = '#333333'
             bg = '#a9aeb0'
     except:
+        #bg = '#333333'
         bg = '#a9aeb0'
-    text.configure(text=bs4Soup(get_html(url)), font=("Arial", 60, "bold"), fg="black", bg=bg)
+    text.configure(text=bs4Soup(get_html(url)), font=("Verdana", 55, "bold"), fg="black", bg=bg)
+    #fg='#CCCCCC'
     window.after(5000, Refresher) # every second...
 
 window = tk.Tk()
-window.title("TITLE")
+window.title("Гарант")
 window.geometry("518x170")
-window.configure(background='#a9aeb0')
-#window.wm_attributes('-fullscreen', True) # Windows
-window.attributes('-zoomed', True)  # LINUX
+window.configure(background='#333333')
+#window.configure(background='#a9aeb0')
+window.wm_attributes('-fullscreen', True) # Windows
+#window.attributes('-zoomed', True)
 
 Draw()
 Refresher()
